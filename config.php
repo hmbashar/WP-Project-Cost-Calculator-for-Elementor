@@ -217,7 +217,7 @@ final class Plugin {
         
         require_once( __DIR__ . '/widget.php' );
 
-        $widgets_manager->register( new \wpProjectCostCal\cbCownDown_Countdown_Widget() );
+        $widgets_manager->register( new \WPProjectCostCalculatorWidget\wp_Project_Cost_Calculator_Widget() );
       
 
 
