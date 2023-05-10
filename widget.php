@@ -34,6 +34,103 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
     {
 
         // Content Tab Start
+        $this->start_controls_section(
+			'wp_cost_calculator_content_section',
+			[
+				'label' => esc_html__( 'Pages', 'textdomain' ),
+				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+		$this->add_control(
+			'wp_cost_calculator_currency',
+			[
+				'label' => esc_html__( 'Currency', 'textdomain' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'default' => esc_html__( '$', 'textdomain' ),
+				'placeholder' => esc_html__( 'Input your Currency Symbol', 'textdomain' ),
+			]
+		);
+
+		$this->add_control(
+			'wp_cost_cal_pages_list',
+			[
+				'label' => esc_html__( 'Pages List', 'textdomain' ),
+				'type' => \Elementor\Controls_Manager::REPEATER,
+				'fields' => [
+                    [
+						'name' => 'page_list',
+						'label' => esc_html__( 'Title', 'textdomain' ),
+						'type' => \Elementor\Controls_Manager::TEXT,
+						'default' => esc_html__( 'Page #1' , 'textdomain' ),					
+					],
+                    [
+                        'name' => 'wp_cost_calculator_pack_1',
+                        'label' => esc_html__( 'Package', 'textdomain' ),
+                        'type' => \Elementor\Controls_Manager::SELECT,
+                        'default' => 'low',
+                        'options' => [
+                            'low' => esc_html__( 'Low', 'textdomain' ),
+                            'medium'  => esc_html__( 'Medium', 'textdomain' ),
+                            'high' => esc_html__( 'High', 'textdomain' ),
+                        ],
+                    ], 
+                    [
+                        'name' => 'wp_cost_calculator_price_1',
+                        'label' => esc_html__( 'Price', 'textdomain' ),
+                        'type' => \Elementor\Controls_Manager::NUMBER,
+                        'min' => 0,
+                        'step' => 5,
+                        'default' => 100,
+                    ],
+                    [
+                        'name' => 'wp_cost_calculator_pack_2',
+                        'label' => esc_html__( 'Package', 'textdomain' ),
+                        'type' => \Elementor\Controls_Manager::SELECT,
+                        'default' => 'medium',
+                        'options' => [
+                            'low' => esc_html__( 'Low', 'textdomain' ),
+                            'medium'  => esc_html__( 'Medium', 'textdomain' ),
+                            'high' => esc_html__( 'High', 'textdomain' ),
+                        ],
+                    ], 
+                    [
+                        'name' => 'wp_cost_calculator_price_2',
+                        'label' => esc_html__( 'Price', 'textdomain' ),
+                        'type' => \Elementor\Controls_Manager::NUMBER,
+                        'min' => 0,
+                        'step' => 5,
+                        'default' => 200,
+                    ],
+                    [
+                        'name' => 'wp_cost_calculator_pack_3',
+                        'label' => esc_html__( 'Package', 'textdomain' ),
+                        'type' => \Elementor\Controls_Manager::SELECT,
+                        'default' => 'high',
+                        'options' => [
+                            'low' => esc_html__( 'Low', 'textdomain' ),
+                            'medium'  => esc_html__( 'Medium', 'textdomain' ),
+                            'high' => esc_html__( 'High', 'textdomain' ),
+                        ],
+                    ], 
+                    [
+                        'name' => 'wp_cost_calculator_price_3',
+                        'label' => esc_html__( 'Price', 'textdomain' ),
+                        'type' => \Elementor\Controls_Manager::NUMBER,
+                        'min' => 0,
+                        'step' => 5,
+                        'default' => 400,
+                    ],
+				],
+				'default' => [
+					[
+						'page_list' => esc_html__( 'Page #1', 'textdomain' ),
+					],
+				],
+				'title_field' => '{{{ page_list }}}',
+			]
+		);
+
+		$this->end_controls_section();
     }
 
 
@@ -41,7 +138,9 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
     {
         $settings = $this->get_settings_for_display();
 
+        $repeater_pages = $settings['wp_cost_cal_pages_list'];
 
+        $totalPages = !empty($repeater_pages) ? count($repeater_pages) : 1;
 
 ?>
 
@@ -69,10 +168,10 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                     <p id="cb-pricing-range-selected-page"></p>
                 </div>
                 <div class="cb-pricing-cal-range-slider">
-                    <input id="cbPricingRangeSlider" type="range" min="1" max="10" step="1" value="3">
+                    <input id="cbPricingRangeSlider" type="range" min="1" max="<?php echo $totalPages; ?>" step="1" value="3">
                     <div class="cb-pricing-cal-range-bottom">
                         <p id="cb-min-pages">1</p>
-                        <p id="cb-max-pages">10</p>
+                        <p id="cb-max-pages"><?php echo $totalPages; ?></p>
                     </div>
                 </div>
             </div>
