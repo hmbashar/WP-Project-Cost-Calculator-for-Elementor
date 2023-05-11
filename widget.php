@@ -144,8 +144,9 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
 
         if ( $repeater_pages ) {
 			
-			foreach (  $repeater_pages  as $index => $page ) {
+            $data = [];
 
+            foreach ($repeater_pages as $index => $page) {
                 $options = [
                     'wp_c_p_low' => esc_html__('Low', 'textdomain'),
                     'wp_c_p_medium' => esc_html__('Medium', 'textdomain'),
@@ -163,28 +164,35 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                     $page['wp_cost_calculator_price_2'], // Replace with the actual variable name for the second package price
                     $page['wp_cost_calculator_price_3'], // Replace with the actual variable name for the third package price
                 ];
-
-
-                echo '<div>';  
-                   
-                $array_number = $index+1;
-
-                foreach ($selected_keys as $index => $selected_key) {
+            
+                $stepData = [];
+                $array_number = $index + 1;
+            
+                foreach ($selected_keys as $selected_key) {
                     if (isset($options[$selected_key])) {
                         $selected_text = $options[$selected_key];
-                        $package_price = isset($package_prices[$index]) ? $package_prices[$index] : '';                
-                       
-                        echo "Step: " . ($array_number) . ", Package: $selected_text, Price: $package_price\n";
+                        $package_price = isset($package_prices[$index]) ? $package_prices[$index] : '';
+            
+                        $stepData[] = [
+                            'Step' => $array_number,
+                            'Package' => $selected_text,
+                            'Price' => $package_price,
+                        ];
                     }
                 }
-                echo '</div>';
-               
-                
-			}
+            
+                $data[] = $stepData;
+            }
+            
+            $jsonData = json_encode($data);
+            echo "<script>var jsonData = $jsonData;</script>";            
 			
 		}
 
 ?>
+<script>
+    console.log(jsonData);
+</script>
 
         <div class="cb-pricing-calculator">
             <div class="cb-pricing-cal-heading">
