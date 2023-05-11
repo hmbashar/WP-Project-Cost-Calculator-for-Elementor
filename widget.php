@@ -67,11 +67,11 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                         'name' => 'wp_cost_calculator_pack_1',
                         'label' => esc_html__( 'Package', 'textdomain' ),
                         'type' => \Elementor\Controls_Manager::SELECT,
-                        'default' => 'low',
+                        'default' => 'wp_c_p_low',
                         'options' => [
-                            'low' => esc_html__( 'Low', 'textdomain' ),
-                            'medium'  => esc_html__( 'Medium', 'textdomain' ),
-                            'high' => esc_html__( 'High', 'textdomain' ),
+                            'wp_c_p_low' => esc_html__( 'Low', 'textdomain' ),
+                            'wp_c_p_medium'  => esc_html__( 'Medium', 'textdomain' ),
+                            'wp_c_p_high' => esc_html__( 'High', 'textdomain' ),
                         ],
                     ], 
                     [
@@ -86,11 +86,11 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                         'name' => 'wp_cost_calculator_pack_2',
                         'label' => esc_html__( 'Package', 'textdomain' ),
                         'type' => \Elementor\Controls_Manager::SELECT,
-                        'default' => 'medium',
+                        'default' => 'wp_c_p_medium',
                         'options' => [
-                            'low' => esc_html__( 'Low', 'textdomain' ),
-                            'medium'  => esc_html__( 'Medium', 'textdomain' ),
-                            'high' => esc_html__( 'High', 'textdomain' ),
+                            'wp_c_p_low' => esc_html__( 'Low', 'textdomain' ),
+                            'wp_c_p_medium'  => esc_html__( 'Medium', 'textdomain' ),
+                            'wp_c_p_high' => esc_html__( 'High', 'textdomain' ),
                         ],
                     ], 
                     [
@@ -105,11 +105,11 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                         'name' => 'wp_cost_calculator_pack_3',
                         'label' => esc_html__( 'Package', 'textdomain' ),
                         'type' => \Elementor\Controls_Manager::SELECT,
-                        'default' => 'high',
+                        'default' => 'wp_c_p_high',
                         'options' => [
-                            'low' => esc_html__( 'Low', 'textdomain' ),
-                            'medium'  => esc_html__( 'Medium', 'textdomain' ),
-                            'high' => esc_html__( 'High', 'textdomain' ),
+                            'wp_c_p_low' => esc_html__( 'Low', 'textdomain' ),
+                            'wp_c_p_medium'  => esc_html__( 'Medium', 'textdomain' ),
+                            'wp_c_p_high' => esc_html__( 'High', 'textdomain' ),
                         ],
                     ], 
                     [
@@ -142,6 +142,48 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
 
         $totalPages = !empty($repeater_pages) ? count($repeater_pages) : 1;
 
+        if ( $repeater_pages ) {
+			
+			foreach (  $repeater_pages  as $index => $page ) {
+
+                $options = [
+                    'wp_c_p_low' => esc_html__('Low', 'textdomain'),
+                    'wp_c_p_medium' => esc_html__('Medium', 'textdomain'),
+                    'wp_c_p_high' => esc_html__('High', 'textdomain'),
+                ];
+                
+                $selected_keys = [
+                    $page['wp_cost_calculator_pack_1'], // Replace with the actual variable name for the first selected key
+                    $page['wp_cost_calculator_pack_2'], // Replace with the actual variable name for the second selected key
+                    $page['wp_cost_calculator_pack_3'], // Replace with the actual variable name for the third selected key
+                ];
+                
+                $package_prices = [
+                    $page['wp_cost_calculator_price_1'], // Replace with the actual variable name for the first package price
+                    $page['wp_cost_calculator_price_2'], // Replace with the actual variable name for the second package price
+                    $page['wp_cost_calculator_price_3'], // Replace with the actual variable name for the third package price
+                ];
+
+
+                echo '<div>';  
+                   
+                $array_number = $index+1;
+
+                foreach ($selected_keys as $index => $selected_key) {
+                    if (isset($options[$selected_key])) {
+                        $selected_text = $options[$selected_key];
+                        $package_price = isset($package_prices[$index]) ? $package_prices[$index] : '';                
+                       
+                        echo "Step: " . ($array_number) . ", Package: $selected_text, Price: $package_price\n";
+                    }
+                }
+                echo '</div>';
+               
+                
+			}
+			
+		}
+
 ?>
 
         <div class="cb-pricing-calculator">
@@ -149,16 +191,16 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                 <h2>COMPLEXITY</h2>
             </div>
             <div class="cb-pricing-level">
-                <label for="cbLow">
-                    <input type="radio" onchange="cbGetRangeValue()" id="cbLow" name="cbPricingLevel" checked>
+                <label for="wp_c_p_low">
+                    <input type="radio" onchange="cbGetRangeValue()" id="wp_c_p_low" name="cbPricingLevel" checked>
                     Low
                 </label>
-                <label for="cbmedium">
-                    <input type="radio" onchange="cbGetRangeValue()"  id="cbmedium" name="cbPricingLevel">
+                <label for="wp_c_p_medium">
+                    <input type="radio" onchange="cbGetRangeValue()"  id="wp_c_p_medium" name="cbPricingLevel">
                     Medium
                 </label>
-                <label for="cbhigh">
-                    <input type="radio" onchange="cbGetRangeValue()"  id="cbhigh" name="cbPricingLevel">
+                <label for="wp_c_p_high">
+                    <input type="radio" onchange="cbGetRangeValue()"  id="wp_c_p_high" name="cbPricingLevel">
                     High
                 </label>
             </div>
@@ -206,9 +248,9 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                 // Price set based on package level
                 let priceMultiplier = 100; // Default price multiplier for low package
 
-                if (cbGetSelectedPack('cbmedium')) {
+                if (cbGetSelectedPack('wp_c_p_medium')) {
                     priceMultiplier = 200; // Update price multiplier for medium package
-                } else if (cbGetSelectedPack('cbhigh')) {
+                } else if (cbGetSelectedPack('wp_c_p_high')) {
                     priceMultiplier = 300; // Update price multiplier for high package
                 }
 
