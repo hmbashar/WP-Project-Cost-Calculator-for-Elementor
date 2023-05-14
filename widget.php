@@ -137,57 +137,58 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
     protected function render()
     {
         $settings = $this->get_settings_for_display();
-
         $repeater_pages = $settings['wp_cost_cal_pages_list'];
-
         $totalPages = !empty($repeater_pages) ? count($repeater_pages) : 1;
-
-        if ( $repeater_pages ) {
-			
+        
+        if ($repeater_pages) {
             $data = [];
-
+        
             foreach ($repeater_pages as $index => $page) {
                 $options = [
-                    'wp_c_p_low' => esc_html__('Low', 'textdomain'),
-                    'wp_c_p_medium' => esc_html__('Medium', 'textdomain'),
-                    'wp_c_p_high' => esc_html__('High', 'textdomain'),
+                    // 'wp_c_p_low' => esc_html__('Low', 'textdomain'),
+                    // 'wp_c_p_medium' => esc_html__('Medium', 'textdomain'),
+                    // 'wp_c_p_high' => esc_html__('High', 'textdomain'),
+
+                    'wp_c_p_low' => 'wp_c_p_low',
+                    'wp_c_p_medium' => 'wp_c_p_medium',
+                    'wp_c_p_high' => 'wp_c_p_high',
                 ];
-                
+        
                 $selected_keys = [
-                    $page['wp_cost_calculator_pack_1'], // Replace with the actual variable name for the first selected key
-                    $page['wp_cost_calculator_pack_2'], // Replace with the actual variable name for the second selected key
-                    $page['wp_cost_calculator_pack_3'], // Replace with the actual variable name for the third selected key
+                    $page['wp_cost_calculator_pack_1'],
+                    $page['wp_cost_calculator_pack_2'],
+                    $page['wp_cost_calculator_pack_3'],
                 ];
-                
+        
                 $package_prices = [
-                    $page['wp_cost_calculator_price_1'], // Replace with the actual variable name for the first package price
-                    $page['wp_cost_calculator_price_2'], // Replace with the actual variable name for the second package price
-                    $page['wp_cost_calculator_price_3'], // Replace with the actual variable name for the third package price
+                    $page['wp_cost_calculator_price_1'],
+                    $page['wp_cost_calculator_price_2'],
+                    $page['wp_cost_calculator_price_3'],
                 ];
-            
+        
                 $stepData = [];
                 $array_number = $index + 1;
-            
-                foreach ($selected_keys as $selected_key) {
+
+                foreach ($selected_keys as $keyIndex => $selected_key) {
                     if (isset($options[$selected_key])) {
                         $selected_text = $options[$selected_key];
-                        $package_price = isset($package_prices[$index]) ? $package_prices[$index] : '';
-            
+                        $package_price = isset($package_prices[$keyIndex]) ? $package_prices[$keyIndex] : '';
+        
                         $stepData[] = [
-                            'Step' => $array_number,
-                            'Package' => $selected_text,
-                            'Price' => $package_price,
+                            'step' => $array_number,
+                            'package' => $selected_text,
+                            'price' => $package_price,
                         ];
                     }
                 }
-            
+        
                 $data[] = $stepData;
             }
-            
+        
             $jsonData = json_encode($data);
-            echo "<script>var jsonData = $jsonData;</script>";            
-			
-		}
+            echo "<script>var jsonData = $jsonData;</script>";
+        }
+        
 
 ?>
 <script>
@@ -200,15 +201,15 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
             </div>
             <div class="cb-pricing-level">
                 <label for="wp_c_p_low">
-                    <input type="radio" onchange="cbGetRangeValue()" id="wp_c_p_low" name="cbPricingLevel" checked>
+                    <input type="radio" onchange="cbGetRangeValue()" class='wp_cost_calculator_package' id="wp_c_p_low" name="cbPricingLevel" checked value="wp_c_p_low">
                     Low
                 </label>
                 <label for="wp_c_p_medium">
-                    <input type="radio" onchange="cbGetRangeValue()"  id="wp_c_p_medium" name="cbPricingLevel">
+                    <input type="radio" onchange="cbGetRangeValue()"  class='wp_cost_calculator_package' id="wp_c_p_medium" name="cbPricingLevel" value="wp_c_p_medium">
                     Medium
                 </label>
                 <label for="wp_c_p_high">
-                    <input type="radio" onchange="cbGetRangeValue()"  id="wp_c_p_high" name="cbPricingLevel">
+                    <input type="radio" onchange="cbGetRangeValue()"  class='wp_cost_calculator_package' id="wp_c_p_high" name="cbPricingLevel" value="wp_c_p_high">
                     High
                 </label>
             </div>
@@ -236,13 +237,19 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
 
 
         <script>
-            function cbGetSelectedPack(id) {
-                return document.getElementById(id).checked;
-            }
-
             function cbGetRangeValue() {
                 // Get range value
                 let cbGetRangeSliderValue = document.getElementById("cbPricingRangeSlider").value;
+
+                // Get selected package
+                let selectedPackage = '';
+                const packageRadios = document.getElementsByClassName('wp_cost_calculator_package');
+                for (let i = 0; i < packageRadios.length; i++) {
+                    if (packageRadios[i].checked) {
+                        selectedPackage = packageRadios[i].value;
+                        break;
+                    }
+                }
 
                 // Get pages number selected
                 let cbNumberOfPagesSelected = document.getElementById('cb-pricing-range-selected-page');
@@ -251,26 +258,46 @@ class wp_Project_Cost_Calculator_Widget extends \Elementor\Widget_Base
                 // Set pages number to selected number from range value
                 cbNumberOfPagesSelected.innerText = cbGetRangeSliderValue;
 
+                // Check if cbGetRangeSliderValue and selectedPackage match any 'jsonData' step and package value
+                let matchedStep = null;
+                jsonData.forEach(stepData => {
+                    stepData.forEach(step => {
+                        if (step.step == cbGetRangeSliderValue && step.package == selectedPackage) {
+                            matchedStep = step;
+                            return; // Exit the loop
+                        }
+                    });
+                    if (matchedStep) {
+                        return; // Exit the loop
+                    }
+                });
 
+                if (matchedStep) {
+                    console.log("cbGetRangeSliderValue and selected package match jsonData step and package value");
+                    let price = parseInt(matchedStep.price); // Parse the price as an integer
+                    console.log("Step: " + matchedStep.step + ", Package: " + matchedStep.package + ", Price: " + price);
 
-                // Price set based on package level
-                let priceMultiplier = 100; // Default price multiplier for low package
-
-                if (cbGetSelectedPack('wp_c_p_medium')) {
-                    priceMultiplier = 200; // Update price multiplier for medium package
-                } else if (cbGetSelectedPack('wp_c_p_high')) {
-                    priceMultiplier = 300; // Update price multiplier for high package
+                    // Calculate and set the total price
+                    let totalPrice = price;
+                    cbTotalPrice.innerText = totalPrice;
+                } else {
+                    console.log("cbGetRangeSliderValue and selected package do not match any jsonData step and package value");
                 }
-
-                // Calculate and set the total price
-                let totalPrice = cbGetRangeSliderValue * priceMultiplier;
-                cbTotalPrice.innerText = totalPrice;
             }
 
             // Add event listener for input changes on the range slider
             document.getElementById("cbPricingRangeSlider").addEventListener('input', cbGetRangeValue);
 
-           cbGetRangeValue();
+            // Add event listener for change event on the package radios
+            const packageRadios = document.getElementsByClassName('wp_cost_calculator_package');
+            for (let i = 0; i < packageRadios.length; i++) {
+                packageRadios[i].addEventListener('change', cbGetRangeValue);
+            }
+
+            // Initialize the calculations
+            cbGetRangeValue();
+
+
         </script>
 
 <?php
